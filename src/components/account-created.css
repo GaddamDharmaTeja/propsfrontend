@@ -1,0 +1,376 @@
+.account-created-page {
+    min-height: 100vh;
+    background: #f6faf8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+
+.account-created-container {
+    width: 100%;
+    max-width: 1500px;
+    min-height: 720px;
+
+    background: white;
+
+    border: 1px solid #e5eee9;
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    display: grid;
+    grid-template-columns: 48% 52%;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =====================================================
+   LEFT SIDE
+===================================================== */
+
+.account-created-left {
+    position: relative;
+
+    background: #f1faf5;
+
+    padding: 32px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.account-created-left .prospr-brand {
+    position: relative;
+    z-index: 2;
+}
+
+
+.success-family-image {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 30px;
+}
+
+
+.success-family-image img {
+    width: 100%;
+    max-width: 580px;
+
+    height: auto;
+
+    object-fit: contain;
+}
+
+
+/* =====================================================
+   RIGHT SIDE
+===================================================== */
+
+.account-created-right {
+    padding: 40px 55px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: white;
+}
+
+
+.success-top {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.success-top button {
+    border: none;
+    background: transparent;
+
+    color: #00866a;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.success-content {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    max-width: 600px;
+
+    margin: 0 auto;
+
+    width: 100%;
+}
+
+
+.success-content h1 {
+    margin: 0;
+
+    font-size: 42px;
+    line-height: 1.15;
+
+    color: #092436;
+
+    font-weight: 700;
+}
+
+
+.success-content h2 {
+    margin-top: 18px;
+    margin-bottom: 12px;
+
+    font-size: 25px;
+
+    color: #18384a;
+}
+
+
+.success-content p {
+    max-width: 520px;
+
+    font-size: 16px;
+    line-height: 1.7;
+
+    color: #637582;
+
+    margin-bottom: 30px;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.success-buttons {
+    display: flex;
+    gap: 12px;
+
+    margin-bottom: 55px;
+}
+
+
+.success-buttons button {
+    min-width: 180px;
+
+    padding: 14px 24px;
+
+    border-radius: 7px;
+
+    border: none;
+
+    background: #008c6d;
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.success-buttons button:hover {
+    background: #00775d;
+}
+
+
+.success-buttons .explore-button {
+    background: white;
+
+    color: #00866a;
+
+    border: 1px solid #008c6d;
+}
+
+
+.success-buttons .explore-button:hover {
+    background: #f1faf5;
+}
+
+
+/* =====================================================
+   SUCCESS FEATURES
+===================================================== */
+
+.success-features {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+}
+
+
+.success-feature {
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.success-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: #edf8f3;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+
+.success-feature span {
+    color: #435966;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.account-created-page .prospr-logo {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.account-created-page .logo-text {
+    font-size: 28px;
+    font-weight: 700;
+
+    color: #0b2737;
+}
+
+
+.account-created-page .logo-leaf {
+    width: 22px;
+    height: 30px;
+
+    background: #008c6d;
+
+    border-radius: 80% 20% 80% 20%;
+
+    transform: rotate(-35deg);
+}
+
+
+.account-created-page .brand-tagline {
+    margin-top: 2px;
+
+    margin-left: 30px;
+
+    color: #71818b;
+
+    font-size: 8px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .account-created-container {
+        grid-template-columns: 1fr;
+    }
+
+
+    .account-created-left {
+        min-height: 350px;
+    }
+
+
+    .success-family-image {
+        margin-top: 10px;
+    }
+
+
+    .success-family-image img {
+        max-width: 400px;
+    }
+
+
+    .account-created-right {
+        padding: 40px;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .account-created-page {
+        padding: 10px;
+    }
+
+
+    .account-created-right {
+        padding: 30px 20px;
+    }
+
+
+    .success-content h1 {
+        font-size: 32px;
+    }
+
+
+    .success-content h2 {
+        font-size: 22px;
+    }
+
+
+    .success-buttons {
+        flex-direction: column;
+    }
+
+
+    .success-buttons button {
+        width: 100%;
+    }
+
+
+    .success-features {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+.activation-summary{margin:20px 0;padding:16px;border:1px solid #bfe6cd;border-radius:12px;background:#f2fbf5;color:#164c39}.activation-summary p{margin:5px 0 12px;font-size:14px}.activation-summary>div{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #d8eee0}.activation-summary button{border:1px solid #087b57;border-radius:6px;background:#fff;color:#087b57;padding:7px 10px;font-weight:700;cursor:pointer}

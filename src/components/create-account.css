@@ -1,0 +1,1380 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Arial, sans-serif;
+    color: #102f3a;
+    background: #f7faf8;
+    -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* =========================================================
+   MAIN PAGE
+========================================================= */
+
+.create-account-page {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    background: #f8fbf9;
+}
+
+/* =========================================================
+   LEFT PANEL
+========================================================= */
+
+.account-left {
+    position: relative;
+    min-height: 100vh;
+    padding: 34px 36px;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            rgba(205, 239, 216, 0.65),
+            transparent 35%
+        ),
+        linear-gradient(180deg, #f2faf4 0%, #e5f5e9 100%);
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.prospr-brand {
+    position: relative;
+    z-index: 10;
+}
+
+.prospr-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-leaf {
+    width: 27px;
+    height: 48px;
+    flex-shrink: 0;
+    background: #138b61;
+    border-radius: 100% 0 100% 0;
+    transform: rotate(-15deg) skewX(-8deg);
+}
+
+.logo-text {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 750;
+    letter-spacing: -1.4px;
+    color: #082f39;
+}
+
+.brand-tagline {
+    margin-left: 35px;
+    margin-top: 2px;
+    font-size: 8px;
+    line-height: 1;
+    color: #6d837e;
+}
+
+/* =========================================================
+   FAMILY IMAGE
+========================================================= */
+
+.family-illustration {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 180px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.family-illustration img {
+    display: block;
+    width: 285px;
+    height: 215px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 0;
+    clip-path: none;
+}
+
+/* =========================================================
+   LEFT MESSAGE
+========================================================= */
+
+.left-message {
+    position: absolute;
+    left: 36px;
+    right: 36px;
+    bottom: 265px;
+    z-index: 6;
+}
+
+.left-message h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.03;
+    font-weight: 750;
+    letter-spacing: -1.1px;
+    color: #082f39;
+}
+
+.left-message p {
+    max-width: 275px;
+    margin: 16px 0 0;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #54726f;
+}
+
+/* =========================================================
+   FEATURES
+========================================================= */
+
+.left-features {
+    position: absolute;
+    left: 36px;
+    right: 36px;
+    bottom: 35px;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #d7f2e4;
+    color: #07865f;
+    font-size: 15px;
+}
+
+.feature-icon.red {
+    background: #f9dddd;
+    color: #dc5b5b;
+}
+
+.feature-icon.blue {
+    background: #dceafb;
+    color: #367dcc;
+}
+
+.feature-icon.yellow {
+    background: #f9e9c9;
+    color: #d7951b;
+}
+
+.feature-item span {
+    font-size: 11px;
+    line-height: 1.2;
+    color: #3f5d5b;
+    font-weight: 500;
+}
+
+/* =========================================================
+   RIGHT CONTENT
+========================================================= */
+
+.account-right {
+    width: 100%;
+    min-height: 100vh;
+    padding: 32px 48px 38px;
+    background: #fff;
+    overflow-y: auto;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.account-header {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.account-header h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 750;
+    letter-spacing: -0.8px;
+    color: #092e38;
+}
+
+.account-header p {
+    margin: 7px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #71827f;
+}
+
+.existing-account {
+    padding-top: 7px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 11px;
+    color: #758481;
+}
+
+.text-link-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #07865f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.text-link-button:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   PROGRESS STEPS
+========================================================= */
+
+.steps {
+    position: relative;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    margin: 12px 0 24px;
+}
+
+.steps::before {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #dce7e3;
+    z-index: 0;
+}
+
+.step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.step span {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #f0f3f2;
+    color: #7d8987;
+    font-size: 10px;
+    font-weight: 650;
+    box-shadow: 0 0 0 1px #d8e1de;
+}
+
+.step.active span,
+.step.completed span {
+    background: #07865f;
+    color: #fff;
+    box-shadow: none;
+}
+
+.step small {
+    font-size: 10px;
+    line-height: 1.2;
+    color: #657573;
+    white-space: nowrap;
+}
+
+.step.active small,
+.step.completed small {
+    color: #173f3a;
+    font-weight: 650;
+}
+
+/* =========================================================
+   FORM SECTION
+========================================================= */
+
+.form-section {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 18px 20px;
+    border: 1px solid #e1e9e5;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 1px 5px rgba(24, 65, 50, 0.025);
+}
+
+.section-title {
+    margin-bottom: 15px;
+}
+
+.section-title h2 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.25;
+    font-weight: 750;
+    color: #12343d;
+}
+
+.section-title h2 span {
+    margin-left: 5px;
+    font-size: 11px;
+    font-weight: 450;
+    color: #778582;
+}
+
+.section-title p {
+    margin: 6px 0 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #758481;
+}
+
+/* =========================================================
+   FORM FIELDS
+========================================================= */
+
+.form-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+    row-gap: 14px;
+}
+
+.form-field {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-field label {
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 650;
+    color: #344f55;
+}
+
+.form-field label b {
+    color: #df5959;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #d8e2df;
+    border-radius: 7px;
+    outline: none;
+    background: #fff;
+    color: #334d53;
+    font-family: inherit;
+    font-size: 11px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.form-field input::placeholder {
+    color: #a2aeab;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    border-color: #07865f;
+    box-shadow: 0 0 0 3px rgba(7, 134, 95, .08);
+}
+
+.form-field input:hover,
+.form-field select:hover {
+    border-color: #c3d5cf;
+}
+
+/* =========================================================
+   MOBILE FIELD
+========================================================= */
+
+.mobile-field {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 6px;
+}
+
+.mobile-field select,
+.mobile-field input {
+    width: 100%;
+}
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+.password-field {
+    position: relative;
+    width: 100%;
+}
+
+.password-field input {
+    padding-right: 36px;
+}
+
+.password-field span {
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #71807e;
+    font-size: 12px;
+}
+
+/* =========================================================
+   FAMILY MEMBERS
+========================================================= */
+
+.family-member {
+    position: relative;
+    width: 100%;
+    margin-bottom: 11px;
+    padding: 15px;
+    border: 1px solid #dfe9e5;
+    border-radius: 9px;
+    background: #fff;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.family-member:hover {
+    border-color: #c9ded5;
+    box-shadow: 0 2px 8px rgba(20, 70, 55, .04);
+}
+
+.member-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 11px;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dff3e9;
+    color: #087f5c;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #183a43;
+}
+
+.member-details {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 9px;
+    color: #687a78;
+}
+
+.primary-label {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin-bottom: 3px;
+    padding: 3px 7px;
+    border-radius: 10px;
+    background: #dff5e9;
+    color: #07865f;
+    font-size: 8px;
+    font-weight: 650;
+}
+
+.edit-member-button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #36545a;
+    font-size: 13px;
+}
+
+.remove-member-button {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #e05252;
+    font-size: 15px;
+}
+
+.remove-member-button:hover {
+    background: #fff0f0;
+    color: #c93e3e;
+}
+
+.add-member-button {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 0 14px;
+    border: 1px dashed #b9d8cc;
+    border-radius: 8px;
+    background: #fff;
+    color: #07865f;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.add-member-button:hover {
+    background: #f0faf5;
+    border-color: #07865f;
+}
+
+/* =========================================================
+   FINANCIAL
+========================================================= */
+
+.currency-input {
+    position: relative;
+}
+
+.currency-input span {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #536866;
+    font-size: 11px;
+}
+
+.currency-input input {
+    padding-left: 30px;
+}
+
+/* =========================================================
+   PREFERENCES
+========================================================= */
+
+.preferences-section {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.preference-group {
+    margin-bottom: 20px;
+}
+
+.preference-group-title {
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #24434a;
+}
+
+.goal-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.goal-option {
+    min-width: 105px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid #dce5e2;
+    border-radius: 8px;
+    background: #fff;
+    color: #3d555a;
+    font-size: 10px;
+}
+
+.goal-option:hover,
+.goal-option.active {
+    border-color: #07865f;
+}
+
+.goal-option.active {
+    background: #f1faf6;
+    color: #08785a;
+    font-weight: 650;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+    font-size: 10px;
+    color: #4e6465;
+}
+
+.checkbox-row input,
+.terms-row input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #07865f;
+}
+
+.theme-options {
+    display: flex;
+    gap: 10px;
+}
+
+.theme-option {
+    flex: 1;
+    min-height: 42px;
+    border: 1px solid #dce5e2;
+    border-radius: 8px;
+    background: #fff;
+    color: #40575a;
+    font-size: 10px;
+}
+
+.theme-option:hover,
+.theme-option.active {
+    border-color: #07865f;
+}
+
+.theme-option.active {
+    background: #f1faf6;
+    color: #08785a;
+    font-weight: 650;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.form-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.cancel-button {
+    padding: 6px 0;
+    border: 0;
+    background: transparent;
+    color: #647876;
+    font-size: 11px;
+}
+
+.cancel-button:hover {
+    color: #183d43;
+}
+
+.review-button {
+    min-width: 170px;
+    height: 42px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 7px;
+    background: #07865f;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 650;
+    transition: background .2s ease, transform .1s ease;
+}
+
+.review-button:hover {
+    background: #067653;
+}
+
+.review-button:active {
+    transform: scale(.98);
+}
+
+/* =========================================================
+   REVIEW
+========================================================= */
+
+.review-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.review-card {
+    min-height: 175px;
+    padding: 15px;
+    border: 1px solid #dfe8e4;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.review-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 13px;
+}
+
+.review-card-header h3 {
+    margin: 0;
+    font-size: 11px;
+    color: #173b43;
+}
+
+.edit-button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #55706c;
+}
+
+.edit-button:hover {
+    background: #eef8f3;
+    color: #07865f;
+}
+
+.review-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 9px;
+}
+
+.review-row label {
+    width: 75px;
+    flex-shrink: 0;
+    color: #71807e;
+}
+
+.review-row span {
+    flex: 1;
+    min-width: 0;
+    color: #304a50;
+    word-break: break-word;
+}
+
+.review-family-member {
+    padding: 9px 0;
+    border-bottom: 1px solid #edf2f0;
+}
+
+.review-family-member:last-child {
+    border-bottom: 0;
+}
+
+.review-family-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: #183a43;
+}
+
+.review-family-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 8px;
+    color: #71807e;
+}
+
+/* =========================================================
+   TERMS
+========================================================= */
+
+.terms-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 15px;
+    font-size: 10px;
+    line-height: 1.45;
+    color: #566b68;
+}
+
+.inline-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #07865f;
+    font-size: inherit;
+    text-decoration: underline;
+}
+
+/* =========================================================
+   SUCCESS PAGE
+========================================================= */
+
+.account-success {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #f3fbf5, #fff);
+}
+
+.success-card {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    align-items: center;
+    padding: 40px;
+    border: 1px solid #e1ebe5;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 5px 25px rgba(25, 70, 55, .06);
+}
+
+.success-image {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.success-image img {
+    width: 330px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.success-content h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #092e38;
+}
+
+.success-content h2 {
+    margin: 10px 0;
+    font-size: 20px;
+    color: #173f47;
+}
+
+.success-content p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #647875;
+}
+
+.success-features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.success-feature {
+    text-align: center;
+}
+
+.success-feature-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e2f3e9;
+    color: #07865f;
+    font-size: 15px;
+}
+
+.success-feature span {
+    display: block;
+    font-size: 8px;
+    color: #4c6463;
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid rgba(7, 134, 95, .35);
+    outline-offset: 2px;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1400px) {
+    .create-account-page {
+        grid-template-columns: 340px minmax(0, 1fr);
+    }
+
+    .account-left {
+        padding: 36px 38px;
+    }
+
+    .family-illustration {
+        top: 185px;
+    }
+
+    .family-illustration img {
+        width: 300px;
+        height: 225px;
+    }
+
+    .left-message {
+        left: 38px;
+        right: 38px;
+        bottom: 275px;
+    }
+
+    .left-message h1 {
+        font-size: 32px;
+    }
+
+    .account-right {
+        padding: 34px 52px 40px;
+    }
+
+    .account-header h1 {
+        font-size: 31px;
+    }
+
+    .form-section {
+        padding: 19px 21px;
+    }
+
+    .form-field input,
+    .form-field select {
+        height: 44px;
+    }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+    .create-account-page {
+        grid-template-columns: 270px minmax(0, 1fr);
+    }
+
+    .account-left {
+        padding: 28px 24px;
+    }
+
+    .logo-text {
+        font-size: 25px;
+    }
+
+    .brand-tagline {
+        margin-left: 30px;
+        font-size: 7px;
+    }
+
+    .family-illustration {
+        top: 170px;
+    }
+
+    .family-illustration img {
+        width: 225px;
+        height: 175px;
+    }
+
+    .left-message {
+        left: 24px;
+        right: 24px;
+        bottom: 260px;
+    }
+
+    .left-message h1 {
+        font-size: 24px;
+    }
+
+    .left-message p {
+        max-width: 215px;
+        font-size: 10px;
+    }
+
+    .left-features {
+        left: 24px;
+        right: 24px;
+        bottom: 28px;
+    }
+
+    .feature-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    .feature-item span {
+        font-size: 9px;
+    }
+
+    .account-right {
+        padding: 28px 28px 32px;
+    }
+
+    .review-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+   TABLET PORTRAIT
+========================================================= */
+
+@media (max-width: 900px) {
+    .create-account-page {
+        grid-template-columns: 230px minmax(0, 1fr);
+    }
+
+    .account-left {
+        padding: 24px 18px;
+    }
+
+    .family-illustration {
+        top: 165px;
+    }
+
+    .family-illustration img {
+        width: 195px;
+        height: 150px;
+    }
+
+    .left-message {
+        left: 18px;
+        right: 18px;
+        bottom: 245px;
+    }
+
+    .left-message h1 {
+        font-size: 21px;
+    }
+
+    .left-message p {
+        max-width: 195px;
+        font-size: 9px;
+    }
+
+    .left-features {
+        left: 18px;
+        right: 18px;
+    }
+
+    .feature-item {
+        gap: 8px;
+    }
+
+    .feature-icon {
+        width: 31px;
+        height: 31px;
+    }
+
+    .feature-item span {
+        font-size: 8px;
+    }
+
+    .account-right {
+        padding: 25px 22px 30px;
+    }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+    .create-account-page {
+        display: block;
+        min-height: 100vh;
+    }
+
+    .account-left {
+        display: none;
+    }
+
+    .account-right {
+        width: 100%;
+        min-height: 100vh;
+        padding: 20px 15px 30px;
+        overflow-y: visible;
+    }
+
+    .account-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .account-header h1 {
+        font-size: 23px;
+    }
+
+    .account-header p {
+        font-size: 10px;
+    }
+
+    .existing-account {
+        align-self: flex-end;
+        padding-top: 0;
+    }
+
+    .steps {
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+    }
+
+    .steps::-webkit-scrollbar {
+        display: none;
+    }
+
+    .step {
+        min-width: 80px;
+    }
+
+    .step small {
+        font-size: 8px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        row-gap: 12px;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+
+    .section-title h2 {
+        font-size: 15px;
+    }
+
+    .section-title p {
+        font-size: 10px;
+    }
+
+    .form-field label {
+        font-size: 10px;
+    }
+
+    .form-field input,
+    .form-field select {
+        height: 43px;
+        font-size: 12px;
+        padding: 0 11px;
+    }
+
+    .mobile-field {
+        grid-template-columns: 65px minmax(0, 1fr);
+    }
+
+    .family-member {
+        padding: 12px;
+    }
+
+    .member-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .add-member-button {
+        min-height: 43px;
+        font-size: 10px;
+    }
+
+    .goal-options {
+        gap: 7px;
+    }
+
+    .goal-option {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .theme-options {
+        flex-direction: column;
+    }
+
+    .theme-option {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .review-button {
+        width: 100%;
+        height: 44px;
+        font-size: 12px;
+    }
+
+    .cancel-button {
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .review-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .success-card {
+        grid-template-columns: 1fr;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .success-image {
+        margin-bottom: 25px;
+    }
+
+    .success-content h1 {
+        font-size: 25px;
+    }
+
+    .success-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+    .account-right {
+        padding: 15px 10px 25px;
+    }
+
+    .form-section {
+        padding: 12px 10px;
+    }
+
+    .account-header h1 {
+        font-size: 21px;
+    }
+
+    .step {
+        min-width: 68px;
+    }
+
+    .step small {
+        font-size: 7px;
+    }
+
+    .family-member {
+        padding: 10px;
+    }
+
+    .goal-option {
+        min-width: 90px;
+        font-size: 9px;
+    }
+
+    .success-card {
+        padding: 20px;
+    }
+}
