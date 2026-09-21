@@ -47,6 +47,7 @@ export default function ImportTemplates() {
   const navigate = useNavigate();
 
   const [file, setFile] = useState(null);
+  const [statementPassword, setStatementPassword] = useState("");
 
   const [templateName, setTemplateName] =
     useState("");
@@ -106,7 +107,7 @@ export default function ImportTemplates() {
       );
     }
 
-    await analyzeFile(selectedFile);
+    await analyzeFile(selectedFile, statementPassword);
   };
 
 
@@ -115,7 +116,8 @@ export default function ImportTemplates() {
      ========================================================= */
 
   const analyzeFile = async (
-    selectedFile
+    selectedFile,
+    pdfPassword = statementPassword
   ) => {
     setLoading(true);
     setError("");
@@ -128,6 +130,13 @@ export default function ImportTemplates() {
         "file",
         selectedFile
       );
+
+      if (pdfPassword && pdfPassword.trim()) {
+        body.append(
+          "statementPassword",
+          pdfPassword.trim()
+        );
+      }
 
       /*
        * Backend endpoint:
@@ -588,6 +597,34 @@ export default function ImportTemplates() {
           </span>
 
         </label>
+
+        <label className="statement-password">
+          PDF password
+          <input
+            type="password"
+            value={statementPassword}
+            autoComplete="off"
+            placeholder="Only if the PDF is locked"
+            onChange={(event) => setStatementPassword(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && file) {
+                event.preventDefault();
+                analyzeFile(file, event.currentTarget.value);
+              }
+            }}
+          />
+        </label>
+
+        {file && (
+          <button
+            className="save-button read-statement"
+            type="button"
+            disabled={loading}
+            onClick={() => analyzeFile(file, statementPassword)}
+          >
+            {loading ? "Reading…" : "Read statement"}
+          </button>
+        )}
 
 
         {loading && (

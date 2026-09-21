@@ -1,20 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, currentUser } from "../lib/api";
-import { asArray, initials, money, signedPct } from "../lib/format";
+import { asArray, initials, money, monthKey, signedPct } from "../lib/format";
 import familyArtwork from "../images/family_background.png";
 import "./app-pages.css";
 
 export default function Home() {
   const user = currentUser();
   const [data, setData] = useState(null);
+  const [rows, setRows] = useState([]);
   const [error, setError] = useState("");
   const [view, setView] = useState("family");
+  const [open, setOpen] = useState("");
 
   useEffect(() => {
     let live = true;
-    api(`/dashboard?view=${view}`)
-      .then((result) => { if (live) setData(result || {}); })
+    setOpen("");
+    Promise.all([
+      api(`/dashboard?view=${view}`),
+      api(`/transactions?view=${view}`),
+    ])
+      .then(([dash, transactions]) => {
+        if (!live) return;
+        setData(dash || {});
+        setRows(asArray(transactions));
+      })
       .catch((e) => { if (live) setError(e.message); });
     return () => { live = false; };
   }, [view]);
@@ -25,6 +35,13 @@ export default function Home() {
   const onTrack = goals.filter((goal) => Number(goal.targetAmount) > 0 && Number(goal.savedAmount) / Number(goal.targetAmount) >= 0.5).length;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const month = data?.month || "";
+  const counted = rows.filter((row) => {
+    if (row.excluded || row.internalTransfer) return false;
+    return !month || monthKey(row.date) === month;
+  });
+  const incomeRows = counted.filter((row) => row.income);
+  const spendRows = counted.filter((row) => !row.income);
 
   return (
     <section className="page">
@@ -43,15 +60,33 @@ export default function Home() {
       </div>
       {error && <div className="banner">{error}</div>}
       <div className="metric-grid">
-        <Metric label="Total income" value={data?.income} change={data?.incomeChangePct} />
-        <Metric label="Total spending" value={data?.spending} change={data?.spendingChangePct} invert />
-        <Metric label="Total savings" value={data?.savings} change={data?.savingsChangePct} />
-        <article className="card metric">
-          <span>Active goals</span>
+        <Metric id="income" open={open} setOpen={setOpen} label="Total income" value={data?.income} change={data?.incomeChangePct} />
+        <Metric id="spending" open={open} setOpen={setOpen} label="Total spending" value={data?.spending} change={data?.spendingChangePct} invert />
+        <Metric id="savings" open={open} setOpen={setOpen} label="Total savings" value={data?.savings} change={data?.savingsChangePct} />
+        <article className={open === "goals" ? "card metric selected" : "card metric"}>
+          <div className="metric-head">
+            <span>Active goals</span>
+            <button className={open === "goals" ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={open === "goals"} aria-label="Show goals" title="Show goals" onClick={() => setOpen(open === "goals" ? "" : "goals")}>☰</button>
+          </div>
           <b>{onTrack} of {goals.length} on track</b>
           <Link to="/goals">View goals</Link>
         </article>
       </div>
+      {open === "income" && <TransactionPanel title="Income transactions" rows={incomeRows} total={data?.income} />}
+      {open === "spending" && <TransactionPanel title="Spending transactions" rows={spendRows} total={data?.spending} />}
+      {open === "savings" && <TransactionPanel title="Savings transactions" rows={counted} total={data?.savings} savings />}
+      {open === "goals" && (
+        <article className="card metric-panel">
+          <h2>Goals</h2>
+          {goals.length === 0 && <p className="empty">No goals yet.</p>}
+          {goals.map((goal) => (
+            <div className="member-line" key={goal.id || goal.title}>
+              <span className="grow">{goal.title}</span>
+              <strong>{money(goal.savedAmount)} of {money(goal.targetAmount)}</strong>
+            </div>
+          ))}
+        </article>
+      )}
       <div className="dash-grid">
         <article className="card">
           <div className="page-head"><h2>Spending overview</h2><b>{money(data?.spending)}</b></div>
@@ -114,14 +149,48 @@ export default function Home() {
   );
 }
 
-function Metric({ label, value, change, invert }) {
+function Metric({ id, open, setOpen, label, value, change, invert }) {
   const number = Number(change) || 0;
   const good = invert ? number <= 0 : number >= 0;
+  const shown = open === id;
   return (
-    <article className="card metric">
-      <span>{label}</span>
+    <article className={shown ? "card metric selected" : "card metric"}>
+      <div className="metric-head">
+        <span>{label}</span>
+        <button className={shown ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={shown} aria-label={`Show ${label} transactions`} title={`Show ${label} transactions`} onClick={() => setOpen(shown ? "" : id)}>☰</button>
+      </div>
       <b>{money(value)}</b>
       <small className={good ? "up" : "down"}>{signedPct(change)} from last month</small>
+    </article>
+  );
+}
+
+function TransactionPanel({ title, rows, total, savings }) {
+  const ordered = [...rows].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  const summed = rows.reduce((sum, row) => sum + Math.abs(Number(row.amount) || 0), 0);
+  return (
+    <article className="card metric-panel">
+      <div className="page-head">
+        <h2>{title}</h2>
+        <b>{ordered.length} · {savings ? money(total) : money(summed)}</b>
+      </div>
+      {ordered.length === 0 ? <p className="empty">No transactions in this total.</p> : (
+        <div className="table-wrap">
+          <table className="data">
+            <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead>
+            <tbody>
+              {ordered.map((row) => (
+                <tr key={row.id || `${row.date}-${row.description}-${row.amount}`}>
+                  <td data-label="Date">{row.date}</td>
+                  <td data-label="Description">{row.description}</td>
+                  <td data-label="Category">{row.category || "Other"}</td>
+                  <td data-label="Amount" className={row.income ? "income" : "expense"}>{row.income ? "+" : "-"}{money(row.amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </article>
   );
 }

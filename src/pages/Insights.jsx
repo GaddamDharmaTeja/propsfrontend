@@ -224,20 +224,23 @@ export default function Insights() {
 function MetricCard({ id, open, setOpen, label, value, note, noteClass, why, children }) {
   const shown = open === id;
   return (
-    <article className={shown ? "card metric open" : "card metric"}>
-      <div className="metric-head">
-        <span>{label}</span>
-        <button className={shown ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={shown} aria-label={`Why ${label}`} title={`Why ${label}`} onClick={() => setOpen(shown ? "" : id)}>☰</button>
-      </div>
-      <b>{value}</b>
-      {note && <small className={noteClass || "muted"}>{note}</small>}
+    <>
+      <article className={shown ? "card metric selected" : "card metric"}>
+        <div className="metric-head">
+          <span>{label}</span>
+          <button className={shown ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={shown} aria-label={`Show ${label} transactions`} title={`Show ${label} transactions`} onClick={() => setOpen(shown ? "" : id)}>☰</button>
+        </div>
+        <b>{value}</b>
+        {note && <small className={noteClass || "muted"}>{note}</small>}
+      </article>
       {shown && (
-        <div className="metric-detail">
+        <div className="card metric-panel">
+          <h2>{label}</h2>
           <p>{why}</p>
           {children}
         </div>
       )}
-    </article>
+    </>
   );
 }
 

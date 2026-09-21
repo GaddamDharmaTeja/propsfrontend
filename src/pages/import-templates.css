@@ -514,6 +514,34 @@
     font-size: 13px;
 }
 
+.statement-password {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+    color: #405777;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.statement-password input {
+    border: 1px solid #d3dfe2;
+    border-radius: 8px;
+    padding: 12px;
+    font: inherit;
+    font-weight: 500;
+    color: #09283b;
+}
+
+.read-statement {
+    margin-top: 12px;
+}
+
+@media (max-width: 800px) {
+    .read-statement {
+        width: 100%;
+    }
+}
+
 .analyzing {
     margin-top: 14px;
     color: #07875f;
