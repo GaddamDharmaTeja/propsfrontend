@@ -310,6 +310,34 @@ export function getToken() {
   );
 }
 
+/** Fetch a binary response (e.g. pending statement file) with auth. */
+export async function apiBlob(path) {
+  const token = localStorage.getItem("prospr_token");
+  const headers = new Headers();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  let response;
+  try {
+    response = await fetch(`${baseUrl}${path}`, { headers });
+  } catch {
+    throw new Error(
+      "Unable to connect to the Prospr server. Please make sure the backend is running on port 8080."
+    );
+  }
+  if (!response.ok) {
+    let message = "Unable to download the file.";
+    try {
+      const body = await response.json();
+      message = body?.message || body?.error || message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return response.blob();
+}
+
 
 /* =========================================================
    CHECK LOGIN STATUS

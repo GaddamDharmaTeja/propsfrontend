@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { asArray, money, monthKey, today } from "../lib/format";
 import "./app-pages.css";
@@ -7,11 +7,13 @@ import "./app-pages.css";
 const blank = { description: "", amount: "", date: today(), category: "Other", income: false, memberId: "" };
 
 export default function Transactions() {
-  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
   const [rows, setRows] = useState([]);
   const [catalog, setCatalog] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [members, setMembers] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("all");
   const [month, setMonth] = useState("all");
@@ -22,28 +24,68 @@ export default function Transactions() {
   const [file, setFile] = useState(null);
   const [accountId, setAccountId] = useState("");
   const [password, setPassword] = useState("");
+  const [templateId, setTemplateId] = useState("");
   const [preview, setPreview] = useState(null);
+  const [pendingVerify, setPendingVerify] = useState(null);
   const [busy, setBusy] = useState(false);
   const [view, setView] = useState("family");
   const query = (params.get("q") || "").toLowerCase();
 
   const load = async (scope = view) => {
-    const [transactions, financial, family, categoryList] = await Promise.all([
+    const [transactions, financial, family, categoryList, templateList] = await Promise.all([
       api(`/transactions?view=${scope}`),
       api("/financial-accounts"),
       api("/family-members"),
       api("/categories"),
+      api("/import-templates").catch(() => []),
     ]);
     setRows(asArray(transactions));
     setAccounts(asArray(financial));
     setMembers(asArray(family));
     setCatalog(asArray(categoryList));
+    setTemplates(asArray(templateList));
     if (!accountId && asArray(financial)[0]) setAccountId(asArray(financial)[0].id);
   };
 
   useEffect(() => {
     load(view).catch((e) => setError(e.message));
   }, [view]);
+
+  useEffect(() => {
+    const pendingId = params.get("pendingId");
+    const savedTemplate = params.get("templateId");
+    if (!pendingId || !savedTemplate) return undefined;
+    let live = true;
+    (async () => {
+      setBusy(true);
+      setError("");
+      try {
+        const result = await api(`/imports/pending/${pendingId}/retry?templateId=${encodeURIComponent(savedTemplate)}`, {
+          method: "POST",
+        });
+        if (!live) return;
+        if (result?.needsVerification) {
+          setPendingVerify(result);
+          setError(result.message || "Still could not read this statement with that template.");
+        } else {
+          setPreview({ ...result, rows: asArray(result?.rows || result) });
+          setTemplateId(savedTemplate);
+          setPendingVerify(null);
+        }
+        setParams((old) => {
+          const next = new URLSearchParams(old);
+          next.delete("pendingId");
+          next.delete("templateId");
+          return next;
+        }, { replace: true });
+      } catch (e) {
+        if (live) setError(e.message);
+      } finally {
+        if (live) setBusy(false);
+      }
+    })();
+    return () => { live = false; };
+  }, []);
 
   const categories = [...new Set(rows.map((row) => row.category).filter(Boolean))];
   const months = [...new Set(rows.map((row) => monthKey(row.date)).filter((key) => /^\d{4}-\d{2}$/.test(key)))].sort().reverse();
@@ -187,12 +229,22 @@ export default function Transactions() {
     setBusy(true);
     setError("");
     setPreview(null);
+    setPendingVerify(null);
     try {
       const body = new FormData();
       body.append("file", file);
       body.append("accountId", accountId);
       if (password) body.append("statementPassword", password);
+      if (templateId) body.append("templateId", templateId);
       const result = await api("/imports/parse", { method: "POST", body });
+      if (result?.needsVerification) {
+        setPendingVerify(result);
+        setPassword("");
+        return;
+      }
+      if (result?.templateId) {
+        setTemplateId(String(result.templateId));
+      }
       setPreview({ ...result, rows: asArray(result?.rows || result) });
       setPassword("");
     } catch (e) {
@@ -214,16 +266,35 @@ export default function Transactions() {
       }));
       await api("/imports/confirm", {
         method: "POST",
-        body: JSON.stringify({ ...preview, accountId, mapping: "automatic header mapping", rows: selected }),
+        body: JSON.stringify({
+          ...preview,
+          accountId,
+          mapping: templateId ? `template:${templateId}` : "automatic header mapping",
+          rows: selected,
+        }),
       });
       setPreview(null);
       setFile(null);
+      setPendingVerify(null);
       await load();
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
+  };
+
+  const dismissPending = async () => {
+    if (!pendingVerify?.pendingImportId) {
+      setPendingVerify(null);
+      return;
+    }
+    try {
+      await api(`/imports/pending/${pendingVerify.pendingImportId}`, { method: "DELETE" });
+    } catch {
+      /* ignore */
+    }
+    setPendingVerify(null);
   };
 
   return (
@@ -269,7 +340,7 @@ export default function Transactions() {
       )}
       <article className="card">
         <div className="page-head">
-          <div><h2>Import bank history</h2><p>CSV, XLS, XLSX, or a text-based PDF. The original file is discarded after parsing.</p></div>
+          <div><h2>Import bank history</h2><p>CSV, XLS, XLSX, or a text-based PDF. Unknown formats can be mapped under Import Templates.</p></div>
           <Link to="/import-templates">Manage templates</Link>
         </div>
         {accounts.length === 0 && (
@@ -283,10 +354,32 @@ export default function Transactions() {
             <option value="">Select account</option>
             {accounts.map((account) => <option key={account.id} value={account.id}>{account.institution} {account.accountName}</option>)}
           </select>
-          <input type="file" accept=".csv,.xls,.xlsx,.pdf" onChange={(e) => { setFile(e.target.files?.[0] || null); setPreview(null); }} />
+          <select value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+            <option value="">Automatic mapping</option>
+            {templates.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+          </select>
+          <input type="file" accept=".csv,.xls,.xlsx,.pdf" onChange={(e) => { setFile(e.target.files?.[0] || null); setPreview(null); setPendingVerify(null); }} />
           <input type="password" value={password} placeholder="Statement password, if any" onChange={(e) => setPassword(e.target.value)} />
           <button className="btn" type="button" disabled={busy} onClick={parse}>{busy ? "Reading..." : "Preview"}</button>
         </div>
+        {pendingVerify && (
+          <div className="banner verify-banner">
+            <div>
+              <strong>Needs format verification</strong>
+              <p>{pendingVerify.message || "We could not recognize this statement format."}</p>
+            </div>
+            <div className="row-actions">
+              <button
+                className="btn"
+                type="button"
+                onClick={() => navigate(`/import-templates?pendingId=${pendingVerify.pendingImportId}`)}
+              >
+                Update format
+              </button>
+              <button className="btn-ghost" type="button" onClick={dismissPending}>Dismiss</button>
+            </div>
+          </div>
+        )}
         {preview && (
           <div>
             <p>{asArray(preview.rows).length} rows ready.</p>
@@ -347,33 +440,31 @@ export default function Transactions() {
                 <td data-label="Date">{row.date}</td>
                 <td data-label="Description">{row.description}{view === "mine" && row.reasonHidden ? <div className="muted">Hidden from family as Anonymous</div> : null}</td>
                 <td data-label="Category">
-                  <select aria-label={`Category for ${row.description}`} value={row.category || "Other"} onChange={(e) => assignCategory(row, e.target.value)}>
+                  <select value={row.category || "Other"} onChange={(e) => assignCategory(row, e.target.value)}>
                     {categoryNames.map((name) => <option key={name}>{name}</option>)}
                   </select>
                 </td>
                 <td data-label="Member">{members.find((item) => item.id === row.memberId)?.name || "Household"}</td>
                 <td data-label="Amount" className={row.income ? "income" : "expense"}>{row.income ? "+" : "-"}{money(row.amount)}</td>
                 <td data-label="Classification">
-                  {row.income ? "Income" : (
-                    <select value={shownClassification(row)} onChange={(e) => classify(row, e.target.value)} aria-label={`Classify ${row.description}`}>
-                      <option value="" disabled>Mark as</option>
-                      <option value="NECESSARY">Necessary</option>
-                      <option value="LIFESTYLE_CREEP">Lifestyle creep</option>
-                      <option value="NOT_SURE">Not sure</option>
-                    </select>
-                  )}
+                  <select value={shownClassification(row)} onChange={(e) => classify(row, e.target.value || null)}>
+                    <option value="">System</option>
+                    <option value="NECESSARY">Necessary</option>
+                    <option value="LIFESTYLE_CREEP">Lifestyle creep</option>
+                    <option value="NOT_SURE">Not sure</option>
+                  </select>
                 </td>
                 {view === "mine" && (
                   <td data-label="Reason">
-                    <button className="btn-ghost" type="button" onClick={() => hideReason(row)}>{row.reasonHidden ? "Show reason" : "Hide reason"}</button>
+                    <button type="button" className="btn-ghost" onClick={() => hideReason(row)}>{row.reasonHidden ? "Show" : "Hide"}</button>
                   </td>
                 )}
-                <td data-label="Remove"><button className="btn-danger" type="button" onClick={() => remove(row)}>Remove</button></td>
+                <td><button type="button" className="btn-danger" onClick={() => remove(row)}>Delete</button></td>
               </tr>
             ))}
           </tbody>
         </table>
-        {visible.length === 0 && <p className="empty">{rows.length === 0 ? "No transactions in this view." : "No transactions match these filters. Choose All members to see the whole list."}</p>}
+        {visible.length === 0 && <p className="empty">No transactions match these filters.</p>}
       </div>
     </section>
   );

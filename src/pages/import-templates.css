@@ -413,6 +413,29 @@
     color: #087951;
 }
 
+.pending-list {
+    display: grid;
+    gap: 12px;
+}
+
+.pending-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    border: 1px solid #d7ebe0;
+    border-radius: 10px;
+    background: #f7fcf9;
+}
+
+.pending-row p {
+    margin: 4px 0 0;
+    color: #5a6f66;
+    font-size: 14px;
+}
+
 .template-page .template-card {
     padding: 28px 30px;
 }

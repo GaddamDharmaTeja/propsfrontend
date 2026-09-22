@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../lib/api";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { api, apiBlob } from "../lib/api";
 import "./import-templates.css";
 
 const FIELD_TYPES = [
@@ -45,6 +45,8 @@ const REQUIRED_FIELDS = [
 
 export default function ImportTemplates() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const pendingId = searchParams.get("pendingId") || "";
 
   const [file, setFile] = useState(null);
   const [statementPassword, setStatementPassword] = useState("");
@@ -72,6 +74,15 @@ export default function ImportTemplates() {
 
   const [success, setSuccess] =
     useState("");
+
+  const [pendingQueue, setPendingQueue] = useState([]);
+  const [activePendingId, setActivePendingId] = useState(pendingId);
+
+  useEffect(() => {
+    api("/imports/pending")
+      .then((rows) => setPendingQueue(Array.isArray(rows) ? rows : []))
+      .catch(() => setPendingQueue([]));
+  }, []);
 
 
   /* =========================================================
@@ -292,6 +303,34 @@ export default function ImportTemplates() {
     }
   };
 
+  useEffect(() => {
+    if (!pendingId) return undefined;
+    let live = true;
+    (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const queue = await api("/imports/pending").catch(() => []);
+        if (!live) return;
+        const list = Array.isArray(queue) ? queue : [];
+        setPendingQueue(list);
+        const meta = list.find((row) => row.id === pendingId);
+        const blob = await apiBlob(`/imports/pending/${pendingId}/content`);
+        if (!live) return;
+        const name = meta?.filename || `pending-statement-${pendingId}.bin`;
+        const restored = new File([blob], name, { type: blob.type || "application/octet-stream" });
+        setFile(restored);
+        setActivePendingId(pendingId);
+        setTemplateName((old) => old.trim() || `${name.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ")} Template`);
+        await analyzeFile(restored, statementPassword);
+      } catch (e) {
+        if (live) setError(e?.message || "Unable to load the statement waiting for format verification.");
+        if (live) setLoading(false);
+      }
+    })();
+    return () => { live = false; };
+  }, [pendingId]);
+
 
   /* =========================================================
      CHANGE MAPPING
@@ -396,7 +435,7 @@ export default function ImportTemplates() {
             })
           );
 
-      await api(
+      const saved = await api(
         "/import-templates",
         {
           method: "POST",
@@ -413,13 +452,19 @@ export default function ImportTemplates() {
       );
 
       setSuccess(
-        "Import template saved successfully."
+        activePendingId
+          ? "Format saved. Retrying the pending import…"
+          : "Import template saved successfully."
       );
 
       setTimeout(() => {
-        navigate(
-          "/transactions"
-        );
+        if (activePendingId && saved?.id) {
+          navigate(
+            `/transactions?pendingId=${encodeURIComponent(activePendingId)}&templateId=${encodeURIComponent(saved.id)}`
+          );
+        } else {
+          navigate("/transactions");
+        }
       }, 900);
     } catch (e) {
       setError(
@@ -476,6 +521,7 @@ export default function ImportTemplates() {
             Upload a sample bank statement
             and define how Prospr should
             interpret its columns.
+            Unknown uploads waiting for verification appear below.
           </p>
 
         </div>
@@ -496,6 +542,41 @@ export default function ImportTemplates() {
       {success && (
         <div className="template-alert success">
           {success}
+        </div>
+      )}
+
+      {pendingQueue.length > 0 && (
+        <div className="template-card">
+          <div className="section-heading">
+            <div className="step-number">!</div>
+            <div>
+              <h2>Needs format verification</h2>
+              <p>These uploads could not be auto-mapped. Open one, map the columns, and save to retry import.</p>
+            </div>
+          </div>
+          <div className="pending-list">
+            {pendingQueue.map((item) => (
+              <div className="pending-row" key={item.id}>
+                <div>
+                  <strong>{item.filename}</strong>
+                  <p>{item.reason}</p>
+                </div>
+                <button
+                  type="button"
+                  className="save-button"
+                  onClick={() => navigate(`/import-templates?pendingId=${item.id}`)}
+                >
+                  Update format
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activePendingId && (
+        <div className="template-alert success">
+          Working on a queued statement. Map the columns below, then save to retry the import.
         </div>
       )}
 

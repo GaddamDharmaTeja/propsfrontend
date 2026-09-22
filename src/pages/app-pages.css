@@ -95,6 +95,18 @@ table.data select { max-width: 100%; font: inherit; }
 .form-grid .full { grid-column: 1 / -1; }
 .banner { padding: 12px 14px; border-radius: 10px; background: #fff4f2; color: #9f2d20; }
 .banner.ok { background: #f3fbf6; color: #0b6b49; }
+.verify-banner {
+  border: 1px solid #9ed9bf;
+  background: #f4fbf7;
+  color: #055c40;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.verify-banner p { margin: 4px 0 0; color: #2f5b4a; }
 .empty { color: var(--muted); padding: 8px 0 4px; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
 .pill { font-size: 12px; font-weight: 700; border-radius: 99px; padding: 4px 8px; background: #eef6f2; color: #0b6b49; }
