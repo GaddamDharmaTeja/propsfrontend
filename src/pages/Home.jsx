@@ -29,6 +29,15 @@ export default function Home() {
     return () => { live = false; };
   }, [view]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (event) => {
+      if (event.key === "Escape") setOpen("");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const categories = Object.entries(data?.categoryBreakdown || {}).sort((a, b) => Number(b[1]) - Number(a[1])).slice(0, 6);
   const max = Math.max(...categories.map(([, value]) => Number(value) || 0), 1);
   const goals = asArray(data?.goals);
@@ -42,6 +51,13 @@ export default function Home() {
   });
   const incomeRows = counted.filter((row) => row.income);
   const spendRows = counted.filter((row) => !row.income);
+  const balance = data?.balance;
+  const income = data?.income;
+  const spending = data?.spending;
+  const savings = data?.savings;
+  const opening = balance != null && savings != null
+    ? Number(balance) - Number(savings)
+    : null;
 
   return (
     <section className="page">
@@ -59,10 +75,18 @@ export default function Home() {
         </div>
       </div>
       {error && <div className="banner">{error}</div>}
-      <div className="metric-grid">
-        <Metric id="income" open={open} setOpen={setOpen} label="Total income" value={data?.income} change={data?.incomeChangePct} />
-        <Metric id="spending" open={open} setOpen={setOpen} label="Total spending" value={data?.spending} change={data?.spendingChangePct} invert />
-        <Metric id="savings" open={open} setOpen={setOpen} label="Total savings" value={data?.savings} change={data?.savingsChangePct} />
+      <div className="metric-grid home-metrics">
+        <article className={open === "balance" ? "card metric selected" : "card metric"}>
+          <div className="metric-head">
+            <span>Total balance</span>
+            <button className={open === "balance" ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={open === "balance"} aria-label="Why balance differs from savings" title="Why these numbers differ" onClick={() => setOpen(open === "balance" ? "" : "balance")}>☰</button>
+          </div>
+          <b>{balanceLabel(balance)}</b>
+          <small className="muted">Statement closing balance</small>
+        </article>
+        <Metric id="income" open={open} setOpen={setOpen} label="Total income" value={income} change={data?.incomeChangePct} />
+        <Metric id="spending" open={open} setOpen={setOpen} label="Total spending" value={spending} change={data?.spendingChangePct} invert />
+        <Metric id="savings" open={open} setOpen={setOpen} label="Total savings" value={savings} change={data?.savingsChangePct} />
         <article className={open === "goals" ? "card metric selected" : "card metric"}>
           <div className="metric-head">
             <span>Active goals</span>
@@ -72,9 +96,6 @@ export default function Home() {
           <Link to="/goals">View goals</Link>
         </article>
       </div>
-      {open === "income" && <TransactionPanel title="Income transactions" rows={incomeRows} total={data?.income} />}
-      {open === "spending" && <TransactionPanel title="Spending transactions" rows={spendRows} total={data?.spending} />}
-      {open === "savings" && <TransactionPanel title="Savings transactions" rows={counted} total={data?.savings} savings />}
       {open === "goals" && (
         <article className="card metric-panel">
           <h2>Goals</h2>
@@ -87,9 +108,23 @@ export default function Home() {
           ))}
         </article>
       )}
+      {(open === "balance" || open === "income" || open === "spending" || open === "savings") && (
+        <MetricExplainPopup
+          kind={open}
+          balance={balance}
+          income={income}
+          spending={spending}
+          savings={savings}
+          opening={opening}
+          incomeRows={incomeRows}
+          spendRows={spendRows}
+          counted={counted}
+          onClose={() => setOpen("")}
+        />
+      )}
       <div className="dash-grid">
         <article className="card">
-          <div className="page-head"><h2>Spending overview</h2><b>{money(data?.spending)}</b></div>
+          <div className="page-head"><h2>Spending overview</h2><b>{money(spending)}</b></div>
           {categories.length === 0 ? <p className="empty">Import a statement to see categories.</p> : (
             <div className="bars">
               {categories.map(([name, value]) => (
@@ -149,6 +184,97 @@ export default function Home() {
   );
 }
 
+function MetricExplainPopup({
+  kind,
+  balance,
+  income,
+  spending,
+  savings,
+  opening,
+  incomeRows,
+  spendRows,
+  counted,
+  onClose,
+}) {
+  const titles = {
+    balance: "Total balance",
+    income: "Total income",
+    spending: "Total spending",
+    savings: "Total savings",
+  };
+  const showDiff = kind === "balance" || kind === "savings";
+  const listRows = kind === "income" ? incomeRows : kind === "spending" ? spendRows : kind === "savings" ? counted : null;
+
+  return (
+    <div className="metric-popup-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="metric-popup"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="metric-popup-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="page-head">
+          <h2 id="metric-popup-title">{titles[kind]}</h2>
+          <button type="button" className="btn-ghost" onClick={onClose} aria-label="Close">Close</button>
+        </div>
+
+        {kind === "balance" && (
+          <>
+            <p><strong>{balanceLabel(balance)}</strong> is cash left in the account at the end of your statement (closing balance).</p>
+            <p className="muted">It is not “how much you saved this month.”</p>
+          </>
+        )}
+        {kind === "income" && (
+          <p><strong>{money(income)}</strong> is money that came in this period (credits / deposits).</p>
+        )}
+        {kind === "spending" && (
+          <p><strong>{money(spending)}</strong> is money that went out this period (debits / withdrawals).</p>
+        )}
+        {kind === "savings" && (
+          <p><strong>{money(savings)}</strong> is income − spending for this period only. It does not ask how much is in the bank.</p>
+        )}
+
+        {showDiff && (
+          <div className="metric-diff">
+            <h3>Why balance and savings differ</h3>
+            <p>Your account did not start this period at ₹0. Savings only measures the change; balance is what is left after that change.</p>
+            <ul className="metric-diff-list">
+              <li><span>Opening (start of statement)</span><strong>{balanceLabel(opening)}</strong></li>
+              <li><span>Total income</span><strong>{money(income)}</strong></li>
+              <li><span>Total spending</span><strong>{money(spending)}</strong></li>
+              <li><span>Total savings (income − spending)</span><strong>{money(savings)}</strong></li>
+              <li className="metric-diff-result"><span>Total balance (closing)</span><strong>{balanceLabel(balance)}</strong></li>
+            </ul>
+            <p className="metric-diff-eq muted">
+              Opening {balanceLabel(opening)} + savings {money(savings)} ≈ balance {balanceLabel(balance)}
+            </p>
+          </div>
+        )}
+
+        {listRows && (
+          <TransactionPanel
+            title={kind === "savings" ? "Transactions in this period" : `${titles[kind]} transactions`}
+            rows={listRows}
+            total={kind === "income" ? income : kind === "spending" ? spending : savings}
+            savings={kind === "savings"}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function balanceLabel(value) {
+  if (value == null || value === "") return "—";
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
+}
+
 function Metric({ id, open, setOpen, label, value, change, invert }) {
   const number = Number(change) || 0;
   const good = invert ? number <= 0 : number >= 0;
@@ -157,7 +283,7 @@ function Metric({ id, open, setOpen, label, value, change, invert }) {
     <article className={shown ? "card metric selected" : "card metric"}>
       <div className="metric-head">
         <span>{label}</span>
-        <button className={shown ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={shown} aria-label={`Show ${label} transactions`} title={`Show ${label} transactions`} onClick={() => setOpen(shown ? "" : id)}>☰</button>
+        <button className={shown ? "card-symbol active" : "card-symbol"} type="button" aria-expanded={shown} aria-label={`Explain ${label}`} title={`Explain ${label}`} onClick={() => setOpen(shown ? "" : id)}>☰</button>
       </div>
       <b>{money(value)}</b>
       <small className={good ? "up" : "down"}>{signedPct(change)} from last month</small>

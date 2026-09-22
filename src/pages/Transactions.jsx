@@ -66,6 +66,25 @@ export default function Transactions() {
     return true;
   }), [rows, tab, month, category, member, query, members]);
 
+  const totals = useMemo(() => {
+    const counted = visible.filter((row) => !row.excluded && !row.internalTransfer);
+    const income = counted.reduce((sum, row) => sum + (row.income ? Number(row.amount) || 0 : 0), 0);
+    const spending = counted.reduce((sum, row) => sum + (row.income ? 0 : Number(row.amount) || 0), 0);
+    const withBalance = [...rows]
+      .filter((row) => row.closingBalance != null && row.closingBalance !== "")
+      .sort((a, b) => {
+        const byDate = String(a.date || "").localeCompare(String(b.date || ""));
+        if (byDate !== 0) return byDate;
+        return String(a.createdAt || a.id || "").localeCompare(String(b.createdAt || b.id || ""));
+      });
+    const latest = withBalance[withBalance.length - 1];
+    const latestBalance = latest ? Number(latest.closingBalance) : null;
+    const balance = latestBalance != null && Number.isFinite(latestBalance)
+      ? latestBalance
+      : income - spending;
+    return { income, spending, balance, fromStatement: latestBalance != null && Number.isFinite(latestBalance) };
+  }, [visible, rows]);
+
   const save = async (event) => {
     event.preventDefault();
     setError("");
@@ -294,6 +313,30 @@ export default function Transactions() {
           <option value="household">Household</option>
           {members.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
         </select>
+      </div>
+      <div className="metric-grid tx-totals">
+        <article className="card metric">
+          <div className="metric-head"><span>Total balance</span></div>
+          <b className={totals.balance < 0 ? "expense" : "income"}>
+            {new Intl.NumberFormat("en-IN", {
+              style: "currency",
+              currency: "INR",
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(Number(totals.balance) || 0)}
+          </b>
+          <small className="muted">{totals.fromStatement ? "Latest statement closing balance" : "Income − spending in this view"}</small>
+        </article>
+        <article className="card metric">
+          <div className="metric-head"><span>Income</span></div>
+          <b className="income">{money(totals.income)}</b>
+          <small className="muted">In this view</small>
+        </article>
+        <article className="card metric">
+          <div className="metric-head"><span>Spending</span></div>
+          <b className="expense">{money(totals.spending)}</b>
+          <small className="muted">In this view</small>
+        </article>
       </div>
       <div className="card table-wrap">
         <table className="data">
